@@ -20,7 +20,7 @@ A modern, efficient pastebin service specifically designed for sharing AI prompt
 
 ## Prerequisites
 
-- Rust 1.71.1 or higher
+- Rust 1.72 or higher
 - Node.js 18 or higher
 - Redis 6.0 or higher
 - Docker (optional)
