@@ -41,10 +41,11 @@ markdown-pastebin/
 │   ├── src/
 │   │   ├── components/
 │   │   │   └── MarkdownPastebin.tsx
-│   │   ├── app/
-│   │   │   └── page.tsx
-│   │   └── styles/
+│   │   │   └── PastebinClientWrapper.tsx
+│   │   └── app/
+│   │       └── page.tsx
 │   │       └── globals.css
+│   │       └── p/[id]/page.tsx     # Dynamic Pages for created pastebin links
 │   ├── package.json
 │   └── Dockerfile
 ├── nginx/
