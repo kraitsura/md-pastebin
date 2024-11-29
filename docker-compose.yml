@@ -9,6 +9,11 @@ services:
       - redis-data:/data
     networks:
       - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
 
   backend:
     build:
@@ -19,18 +24,32 @@ services:
       - HOST=0.0.0.0
       - PORT=8080
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     networks:
       - internal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_API_URL=/api
+    depends_on:
+      backend:
+        condition: service_healthy
     networks:
       - internal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nginx:
     image: nginx:alpine
@@ -42,13 +61,17 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl
       - ./nginx/logs:/var/log/nginx
     depends_on:
-      - backend
-      - frontend
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
     networks:
       - internal
 
 networks:
   internal:
+    name: markdown-pastebin
+    driver: bridge
 
 volumes:
   redis-data:

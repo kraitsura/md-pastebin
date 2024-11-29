@@ -36,7 +36,14 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = Cors::default()
-            .allowed_origin("http://localhost:3000")
+            .allowed_origin_fn(|origin, _req_head| {
+                let allowed_origins = vec![
+                    "http://localhost:3000",
+                    "http://localhost",
+                    "http://production-domain.com"
+                ];
+                allowed_origins.contains(&origin.to_str().unwrap_or_default())
+            })
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec!["Content-Type"])
             .max_age(3600);
@@ -48,6 +55,7 @@ async fn main() -> std::io::Result<()> {
             .service(handlers::create_paste)
             .service(handlers::get_paste)
             .service(handlers::get_paste_info)
+            .service(handlers::health_check)
     })
     .bind((host, port))?
     .run()

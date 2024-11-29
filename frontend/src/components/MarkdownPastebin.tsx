@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, ChangeEvent } from "react";
-import type { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -18,10 +17,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import rehypeRaw from "rehype-raw";
 import { type Components } from "react-markdown";
+import CodeBlock from "./markdown/CodeBlock";
+import { apiConfig } from "@/config/api";
 
 interface MarkdownPastebinProps {
 	initialPasteId?: string;
@@ -34,33 +33,6 @@ interface PasteResponse {
 
 interface PasteData {
 	content: string;
-}
-
-interface CodeProps {
-  inline?: boolean
-  className?: string
-  children?: ReactNode
-  [key: string]: any
-}
-
-const CodeBlock: Components['code'] = ({ inline, className, children, ...props }: CodeProps) => {
-  const match = /language-(\w+)/.exec(className || '')
-  return !inline && match ? (
-    <div className="rounded-md">
-      <SyntaxHighlighter
-        {...props}
-        style={vscDarkPlus}
-        language={match[1]}
-        PreTag="div"
-      >
-        {String(children).replace(/\n$/, '')}
-      </SyntaxHighlighter>
-    </div>
-  ) : (
-    <code {...props} className={className}>
-      {children}
-    </code>
-  )
 }
 
 const MarkdownComponents: Components = {
@@ -88,8 +60,6 @@ const MarkdownComponents: Components = {
   p: ({children}) => <p className="mb-4">{children}</p>,
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-
 const MarkdownPastebin: React.FC<MarkdownPastebinProps> = ({
 	initialPasteId,
 }) => {
@@ -113,7 +83,7 @@ const MarkdownPastebin: React.FC<MarkdownPastebinProps> = ({
 	const loadPaste = async (id: string): Promise<void> => {
 		try {
 			setLoading(true);
-			const response = await fetch(`${API_BASE_URL}/api/pastes/${id}`);
+			const response = await fetch(`${apiConfig.baseURL}${apiConfig.endpoints.getPaste(id)}`);
 
 			if (!response.ok) {
 				throw new Error(
@@ -145,7 +115,7 @@ const MarkdownPastebin: React.FC<MarkdownPastebinProps> = ({
       setError("");
 
       const pasteData: PasteData = { content };
-      const response = await fetch(`${API_BASE_URL}/api/pastes`, {
+      const response = await fetch(`${apiConfig.baseURL}${apiConfig.endpoints.createPaste}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -161,7 +131,6 @@ const MarkdownPastebin: React.FC<MarkdownPastebinProps> = ({
       const fullUrl = `${window.location.origin}/p/${data.id}`;
       setPasteUrl(fullUrl);
 
-      // Replace window.location.href with router.push
       router.push(`/p/${data.id}`);
     } catch (err) {
       setError(

@@ -6,13 +6,11 @@ interface PageProps {
   params: Promise<{
     id: string;
   }>;
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function PastePage({ params }: PageProps) {
-  // Await the params since they're asynchronous in Next.js App Router
-  const resolvedParams = await params;
-  const pasteId = resolvedParams.id;
+export default async function PastePage({ params, searchParams }: PageProps) {
+  const [{ id: pasteId }] = await Promise.all([params, searchParams]);
 
   if (!pasteId) {
     return (
@@ -25,7 +23,7 @@ export default async function PastePage({ params }: PageProps) {
   return (
     <div className="grid grid-rows-[auto_1fr_auto] min-h-screen p-4 md:p-8 gap-8">
       <header className="flex items-center justify-between p-4">
-        <h1 className="text-xl font-semibold">AI Context Pastebin</h1>
+        <h1 className="text-xl font-semibold">Markdown Pastebin</h1>
       </header>
 
       <main className="flex justify-center w-full">
@@ -37,7 +35,7 @@ export default async function PastePage({ params }: PageProps) {
       </main>
 
       <footer className="flex justify-center items-center p-4 text-sm text-muted-foreground">
-        <p>AI Context Pastebin - Share your prompts easily</p>
+        <p>Markdown Pastebin - Share your AI prompts and export chat contexts easily</p>
       </footer>
     </div>
   );

@@ -4,7 +4,7 @@ use log::{error, info};
 use crate::models::{CreatePasteRequest, CreatePasteResponse};
 use crate::storage::RedisStorage;
 
-#[post("/api/pastes")]
+#[post("/pastes")]
 pub async fn create_paste(
     storage: web::Data<RedisStorage>,
     paste_req: web::Json<CreatePasteRequest>,
@@ -29,7 +29,7 @@ pub async fn create_paste(
     }
 }
 
-#[get("/api/pastes/{id}")]
+#[get("/pastes/{id}")]
 pub async fn get_paste(
     storage: web::Data<RedisStorage>,
     id: web::Path<String>,
@@ -56,7 +56,7 @@ pub async fn get_paste(
     }
 }
 
-#[get("/api/pastes/{id}/info")]
+#[get("/pastes/{id}/info")]
 pub async fn get_paste_info(
     storage: web::Data<RedisStorage>,
     id: web::Path<String>,
@@ -85,4 +85,12 @@ pub async fn get_paste_info(
             }))
         }
     }
+}
+
+#[get("/health")]
+pub async fn health_check() -> impl Responder {
+    HttpResponse::Ok().json(serde_json::json!({
+        "status": "healthy",
+        "timestamp": chrono::Utc::now().to_rfc3339()
+    }))
 }
