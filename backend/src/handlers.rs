@@ -89,8 +89,5 @@ pub async fn get_paste_info(
 
 #[get("/health")]
 pub async fn health_check() -> impl Responder {
-    HttpResponse::Ok().json(serde_json::json!({
-        "status": "healthy",
-        "timestamp": chrono::Utc::now().to_rfc3339()
-    }))
+    HttpResponse::Ok().body("healthy")
 }

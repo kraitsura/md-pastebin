@@ -8,6 +8,7 @@ COPY . .
 RUN npm run build
 
 FROM node:18-alpine
+RUN apk add --no-cache curl
 WORKDIR /app
 COPY --from=builder /app/next.config.ts ./
 COPY --from=builder /app/package*.json ./
